@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 # This way I can use the variables defined in my settings.py
 from django.conf import settings
@@ -24,6 +24,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('base.urls'))
 ]
 
 # This way we are defining the URL used to render images in the browser and the folder where those images are stored.
