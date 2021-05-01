@@ -1,1 +1,11 @@
+# Django cache files
+*.log
+*.pot
+__pycache__/
+local_settings.py
+*.pyc
+*.db
+*.py.bak
+
+# Folder where I keep useful code snippets
 .snippets
