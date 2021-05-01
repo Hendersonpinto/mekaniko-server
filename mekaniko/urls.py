@@ -16,6 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+# This way I can use the variables defined in my settings.py
+from django.conf import settings
+
+# This is a built-in function that enables the connection between our url defined by MEDIA_URL and the static folder we want to deliver from MEDIA_ROOT
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 ]
+
+# This way we are defining the URL used to render images in the browser and the folder where those images are stored.
+# The built-in static function will make the connection and handle the delivery.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
