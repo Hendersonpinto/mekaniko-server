@@ -129,6 +129,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/images/'
+
+# In addition to using a static/ directory inside our apps, we set a static directory for delivering files that are not tied to any particular app (general static images folder)
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
+
+# This is what defines where the uploaded content from a model is stored. Absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = 'static/images'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
