@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.gis',
+
     'rest_framework',
+    'rest_framework_gis',
     'base.apps.BaseConfig'
 ]
 
@@ -77,7 +81,7 @@ WSGI_APPLICATION = 'mekaniko.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'mekaniko',
         'USER': 'postgres',
         'PASSWORD': 'pgadminpassword2021',
