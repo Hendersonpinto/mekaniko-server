@@ -129,7 +129,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-MEDIA_URL = '/images'
+MEDIA_URL = '/images/'
 
 # In addition to using a static/ directory inside our apps, we set a static directory for delivering files that are not tied to any particular app (general static images folder)
 STATICFILES_DIRS = [

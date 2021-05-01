@@ -83,7 +83,7 @@ class Service(models.Model):
 class Category(models.Model):
     # Since the m2m field is defined in the Service model, we don't need to define it here
     name = models.CharField(max_length=80, null=False, blank=False)
-    image models.ImageField(null=True, blank=True)
+    image = models.ImageField(null=True, blank=True)
 
     def __str__(self):
         return str(self.name)
