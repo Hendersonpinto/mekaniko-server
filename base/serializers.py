@@ -1,9 +1,41 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Brand, CarModel, Category, Service
 
 
-# The name is setup by convention to <Model>Serializer
+# The name is by convention: <Model>Serializer
+class UserSerializer(serializers.ModelSerializer):
+    # Instead of modifying the User model we add a new field to our serializer using a method field.
+    name = serializers.SerializerMethodField(read_only=True)
+    isAdmin = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'name', 'isAdmin']
+
+    def get_name(self, obj):
+        name = obj.first_name
+        if name == '':
+            name = obj.email
+        return name
+
+    def get_isAdmin(self, obj):
+        return obj.is_staff
+
+
+class UserSerializerWithToken(UserSerializer):
+    token = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'name', 'isAdmin']
+
+    def get_token(self, obj):
+        token = RefreshToken.for_user(obj)
+        return str(token.access_token)
+
+
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand

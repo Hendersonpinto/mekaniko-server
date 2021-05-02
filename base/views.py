@@ -3,10 +3,25 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Brand, CarModel, Category, Service
-from .serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer
+from .serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer, UserSerializer, UserSerializerWithToken
+
+# This is used to customize our tokens
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 # DRF provides two wrappers to write our API views: the @api_view decorator for function based views and APIView classes for class based views
+
+@api_view(['GET'])
+def getUserProfile(request):
+    # NOTE: This is pretty tricky. Since we have set the authentication system to be simplejwt and we are using our api decorator
+    # The user stored in request.user does NOT have to be the same user we log in using Django's admin interface.
+    # Therefore, we need to pass the access token in our authorization header in order to get a response with our user profile data (request.user). SO YOU COULD BE LOGGED IN WITH DJANGO'S DEFAULT AUTH SYSTEM BUT IT WON'T FIND REQUEST.USER IF YOU DONT PASS THE TOKEN IN YOUR HEADERS
+    user = request.user
+    serializer = UserSerializer(user, many=False)
+    return Response(serializer.data)
+
+
 @api_view(['GET'])
 def brandList(request):
     # This will return an queryset, which it's not compatible with JSON so I need to serialize it
@@ -66,3 +81,42 @@ def serviceDetail(request, pk):
     serializer = ServiceSerializer(
         service, many=False, context={'request': request})
     return Response(serializer.data)
+
+
+# ---------    Customization of our tokens and token response
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    # We have two ways of customizing our tokens:
+    # 1) Add the extra data to the response we get after login
+    # 2) Add the extra data inside of the token itself (requires decoding the token in the client to consume this data)
+
+    # This is the (1) way to add new extra fields (username, email) to the response we get after sending a POST request to our login endpoint.
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Instead of writing all the fields we need from the request.user, we can loop through the properties
+        # data['username'] = self.user.username
+        # data['email'] = self.user.username
+
+        # Looping instead of writing all the data fields
+        serializer = UserSerializerWithToken(self.user).data
+        for k, v in serializer.items():
+            data[k] = v
+
+        return data
+
+    # This is the (2) way to add new extra fields (username, email) to the encoded token itself (requires decoding the token).
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # This will add username and message fields to the encoded token
+        token['username'] = user.username
+        # token['message'] = 'Hello world'
+
+        return token
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+# ---------    Customization of our tokens and token response
