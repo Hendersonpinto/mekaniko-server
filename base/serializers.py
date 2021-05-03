@@ -29,7 +29,7 @@ class UserSerializerWithToken(UserSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'name', 'isAdmin']
+        fields = ['id', 'username', 'email', 'name', 'isAdmin', 'token']
 
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
