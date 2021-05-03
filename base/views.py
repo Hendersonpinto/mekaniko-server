@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework.decorators import api_view
+from django.contrib.auth.models import User
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+
 
 from .models import Brand, CarModel, Category, Service
 from .serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer, UserSerializer, UserSerializerWithToken
@@ -13,12 +16,21 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 # DRF provides two wrappers to write our API views: the @api_view decorator for function based views and APIView classes for class based views
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getUserProfile(request):
     # NOTE: This is pretty tricky. Since we have set the authentication system to be simplejwt and we are using our api decorator
     # The user stored in request.user does NOT have to be the same user we log in using Django's admin interface.
     # Therefore, we need to pass the access token in our authorization header in order to get a response with our user profile data (request.user). SO YOU COULD BE LOGGED IN WITH DJANGO'S DEFAULT AUTH SYSTEM BUT IT WON'T FIND REQUEST.USER IF YOU DONT PASS THE TOKEN IN YOUR HEADERS
     user = request.user
     serializer = UserSerializer(user, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def userList(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
 
