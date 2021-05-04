@@ -24,7 +24,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('base.urls'))
+    path('api/', include('base.urls.base_urls')),
+    path('api/users/', include('base.urls.user_urls'))
 ]
 
 # This way we are defining the URL used to render images in the browser and the folder where those images are stored.

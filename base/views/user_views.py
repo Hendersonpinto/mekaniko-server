@@ -5,15 +5,38 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 
-from .models import Brand, CarModel, Category, Service
-from .serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer, UserSerializer, UserSerializerWithToken
+from base.models import Brand, CarModel, Category, Service
+from base.serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer, UserSerializer, UserSerializerWithToken
 
 # This is used to customize our tokens
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from django.contrib.auth.hashers import make_password
+from rest_framework import status
 
-# DRF provides two wrappers to write our API views: the @api_view decorator for function based views and APIView classes for class based views
+
+@api_view(['POST'])
+def registerUser(request):
+    data = request.data
+
+    # We need to handle the error, to give details to our users
+    try:
+        user = User.objects.create(
+            # We will store both names in first name and use email as the username
+            first_name=data['name'],
+            username=data['email'],
+            email=data['email'],
+            # Passwords can't be sretored in the raw form. We need to hash it before add it to the DB
+            password=make_password(data['password'])
+        )
+        # We use this serializer because we want to return the access token so we can log the user right after created
+        serializer = UserSerializerWithToken(user, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'detail': 'User with this email already exists.'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -33,69 +56,9 @@ def userList(request):
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
-
-@api_view(['GET'])
-def brandList(request):
-    # This will return an queryset, which it's not compatible with JSON so I need to serialize it
-    brands = Brand.objects.all()
-    serializer = BrandSerializer(brands, many=True)
-    return Response(serializer.data)
+    # ---------    Customization of our tokens and token response
 
 
-@api_view(['GET'])
-def brandDetail(request, pk):
-    # By using this shortcut, I don't have to define the 404 handling if the record is not found.
-    brand = get_object_or_404(Brand, pk=pk)
-    serializer = BrandSerializer(brand, many=False)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def carModelList(request):
-    car_models = CarModel.objects.all()
-    serializer = CarModelSerializer(car_models, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def carModelDetail(request, pk):
-    car_model = get_object_or_404(CarModel, pk=pk)
-    serializer = CarModelSerializer(car_model, many=False)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def categoryList(request):
-    service_categories = Category.objects.all()
-    serializer = CategorySerializer(service_categories, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def categoryDetail(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    serializer = CategorySerializer(category, many=False)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def serviceList(request):
-    services = Service.objects.all()
-    # I need to add context if the hyperlinkfield relation is used in the serializer
-    serializer = ServiceSerializer(
-        services, many=True, context={'request': request})
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def serviceDetail(request, pk):
-    service = get_object_or_404(Service, pk=pk)
-    serializer = ServiceSerializer(
-        service, many=False, context={'request': request})
-    return Response(serializer.data)
-
-
-# ---------    Customization of our tokens and token response
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     # We have two ways of customizing our tokens:
     # 1) Add the extra data to the response we get after login

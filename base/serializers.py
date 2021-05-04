@@ -25,6 +25,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserSerializerWithToken(UserSerializer):
+    # We are creating a user serializer with a token included, we will use this serializer when new users register in our app so the token is returned in the response so we can log them at once.
+    # Otherwise, users would need to register and then log in (obtain the token) for future actions
     token = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
