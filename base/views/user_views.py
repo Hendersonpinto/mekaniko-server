@@ -49,6 +49,27 @@ def getUserProfile(request):
     return Response(serializer.data)
 
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateUserProfile(request):
+    user = request.user
+    # We will use userSerializerWithToken because we will get a new access token when updating our profile
+    serializer = UserSerializerWithToken(user, many=False)
+
+    data = request.data
+    user.first_name = data['name']
+    user.username = data['email']
+    user.email = data['email']
+
+    if data['password'] != '':
+        user.password = make_password(data['password'])
+
+    # We save outside of the if, because our users can edit their information without needing to send a new password
+    user.save()
+
+    return Response(serializer.data)
+
+
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def userList(request):
