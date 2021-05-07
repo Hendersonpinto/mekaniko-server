@@ -5,8 +5,8 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
 
-from base.models import Brand, CarModel, Category, Service
-from base.serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer
+from base.models import Brand, CarModel, Category, Service, Shop
+from base.serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer, ShopSerializer
 
 from rest_framework import status
 
@@ -72,3 +72,34 @@ def serviceDetail(request, pk):
     serializer = ServiceSerializer(
         service, many=False, context={'request': request})
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def shopList(request):
+    shops = Shop.objects.all()
+    serializer = ShopSerializer(shops, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def shopDetail(request, pk):
+    shop = get_object_or_404(Shop, pk=pk)
+    serializer = ShopSerializer(shop, many=False)
+    return Response(serializer.data)
+
+
+# @api_view(['POST'])
+# @permission_classes([IsAdminUser])
+# def shopCreate(request):
+#     data = request.data
+
+#     try:
+#         shopCreate = Shop.objects.create(
+#             name=data['name'],
+#             username=data['email'],
+#             email=data['email'],
+#             # Passwords can't be sretored in the raw form. We need to hash it before add it to the DB
+#             password=make_password(data['password'])
+#         )
+#     serializer = ShopSerializer(shop, many=False)
+#     return Response(serializer.data)

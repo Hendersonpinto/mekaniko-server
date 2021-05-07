@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Brand, CarModel, Category, Service
+from .models import Brand, CarModel, Category, Service, Shop
 
 
 # The name is by convention: <Model>Serializer
@@ -75,3 +75,11 @@ class ServiceSerializer(serializers.ModelSerializer):
         # This value specify how many levels we want our nested relationship to be explicit
         # In this case instead of showing the pk for the foreignKey fields, we show the entire object in the first depth-level
         # depth = 1
+
+
+class ShopSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(many=False)
+
+    class Meta:
+        model = Shop
+        fields = '__all__'
