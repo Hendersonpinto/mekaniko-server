@@ -8,6 +8,8 @@ from django.contrib.auth.models import Group
 admin.site.unregister(Group)
 admin.site.site_header = "Mekaniko Admin"
 
+# We need to register a model as a class is we want to customize the admin interface for a particular model
+
 
 @admin.register(Shop)
 class ShopAdmin(OSMGeoAdmin):
