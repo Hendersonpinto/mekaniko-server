@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.gis.geos import Point
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
-
+from base.permissions import IsAdminUserOrReadOnly
 from base.models import Brand, CarModel, Category, Service, Shop
 from base.serializers import BrandSerializer, CarModelSerializer, CategorySerializer, ServiceSerializer, ShopSerializer
 
@@ -18,6 +19,7 @@ def brandList(request):
     # This will return an queryset, which it's not compatible with JSON so I need to serialize it
     brands = Brand.objects.all()
     serializer = BrandSerializer(brands, many=True)
+    # The Response class is an HttpResponse that allows its data to be rendered into arbitrary media types. Choosing the right type based on the type of the incoming request, like JSON, XML, HTML
     return Response(serializer.data)
 
 
@@ -74,11 +76,23 @@ def serviceDetail(request, pk):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-def shopList(request):
-    shops = Shop.objects.all()
-    serializer = ShopSerializer(shops, many=True)
-    return Response(serializer.data)
+@api_view(['GET', 'POST'])
+@permission_classes([IsAdminUserOrReadOnly])
+def shopListCreate(request):
+    # If the user is admin get access to both methods, otherwise only to GET due to IsAdminUserOrReadOnly permission
+    if request.method == "GET":
+        shops = Shop.objects.all()
+        serializer = ShopSerializer(shops, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        data = request.data
+        serializer = ShopSerializer(data=data, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -88,18 +102,28 @@ def shopDetail(request, pk):
     return Response(serializer.data)
 
 
-# @api_view(['POST'])
-# @permission_classes([IsAdminUser])
-# def shopCreate(request):
-#     data = request.data
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def shopCreate(request):
+    data = request.data
+    serializer = ShopSerializer(data=data, context={'request': request})
 
-#     try:
-#         shopCreate = Shop.objects.create(
-#             name=data['name'],
-#             username=data['email'],
-#             email=data['email'],
-#             # Passwords can't be sretored in the raw form. We need to hash it before add it to the DB
-#             password=make_password(data['password'])
-#         )
-#     serializer = ShopSerializer(shop, many=False)
-#     return Response(serializer.data)
+    # https://stackoverflow.com/questions/67452173/django-rest-framework-field-serializer-validation-is-not-being-called
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def brandCreate(request):
+    data = request.data
+    try:
+        brand = Brand.objects.create(
+            name=data['name'],
+        )
+        serializer = BrandSerializer(brand, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'detail': 'Brand is not created'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
