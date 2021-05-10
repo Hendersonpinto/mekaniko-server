@@ -99,7 +99,7 @@ class Review(models.Model):
 
 
 class Brand(models.Model):
-    name = models.CharField(max_length=80, null=False, blank=False)
+    name = models.CharField(max_length=80)
     logo = models.ImageField(null=True, blank=True)
 
     def __str__(self):
