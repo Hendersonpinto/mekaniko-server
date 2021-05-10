@@ -96,9 +96,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'mekaniko',
-        'USER': 'postgres',
-        'PASSWORD': 'pgadminpassword2021',
-        'HOST': 'localhost',
+        'USER': 'hendersoncodes',
+        'PASSWORD': 'hendersoncodes2021.',
+        'HOST': 'mekaniko-identifier.c9iycjx9yadz.us-east-2.rds.amazonaws.com',
         'PORT': '5432'
 
     }
