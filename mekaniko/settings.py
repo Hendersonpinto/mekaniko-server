@@ -13,6 +13,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,11 +29,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-48kkup$_$zlga)8u0wcmvp-*)w(2duhhbtge_7xdo388ki2fj#'
+# Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# False if not in os.environ
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -96,10 +106,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'mekaniko',
-        'USER': 'hendersoncodes',
-        'PASSWORD': 'hendersoncodes2021.',
-        'HOST': 'mekaniko-identifier.c9iycjx9yadz.us-east-2.rds.amazonaws.com',
-        'PORT': '5432'
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT')
 
     }
 }
