@@ -36,7 +36,8 @@ SECRET_KEY = env('SECRET_KEY')
 # False if not in os.environ
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+# This is needed in case DEBUG is false
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mekaniko.herokuapp.com']
 
 
 # Application definition
@@ -69,7 +70,9 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    # Whitenoise should go below CORS middleware
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -160,7 +163,8 @@ STATICFILES_DIRS = [
 ]
 
 # This is what defines where the uploaded content from a model is stored. Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = 'static/images'
+MEDIA_ROOT = BASE_DIR / 'static/images'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
