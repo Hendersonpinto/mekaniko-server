@@ -14,4 +14,4 @@ mekaniko/.env
 .snippets
 
 # Django staticfiles directory
-staticfiles/
+# staticfiles/
