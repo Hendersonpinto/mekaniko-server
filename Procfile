@@ -1,0 +1,1 @@
+web: gunicorn mekaniko.wsgi --log-file -

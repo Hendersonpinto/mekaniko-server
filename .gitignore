@@ -12,3 +12,6 @@ mekaniko/.env
 
 # Folder where I keep useful code snippets
 .snippets
+
+# Django staticfiles directory
+staticfiles/
