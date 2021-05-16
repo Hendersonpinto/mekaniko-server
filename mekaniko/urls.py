@@ -32,3 +32,4 @@ urlpatterns = [
 # This way we are defining the URL used to render images in the browser and the folder where those images are stored.
 # The built-in static function will make the connection and handle the delivery.
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

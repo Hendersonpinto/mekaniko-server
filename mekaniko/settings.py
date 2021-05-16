@@ -13,6 +13,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+
+environ.Env.read_env()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,13 +29,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-48kkup$_$zlga)8u0wcmvp-*)w(2duhhbtge_7xdo388ki2fj#'
+# Raises django's ImproperlyConfigured exception if SECRET_KEY not in os.environ
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# False if not in os.environ
+DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = []
+# This is needed in case DEBUG is false
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'mekaniko.herokuapp.com']
 
 
 # Application definition
@@ -38,11 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'django.contrib.gis',
 
     'rest_framework',
     'rest_framework_gis',
+    'corsheaders',
+
     'base.apps.BaseConfig'
 ]
 
@@ -59,7 +71,13 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    # This should be always on top!
+    'corsheaders.middleware.CorsMiddleware',
+
+
+    # Whitenoise should go below CORS middleware and above SecurityMiddleware
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -96,10 +114,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'mekaniko',
-        'USER': 'hendersoncodes',
-        'PASSWORD': 'hendersoncodes2021.',
-        'HOST': 'mekaniko-identifier.c9iycjx9yadz.us-east-2.rds.amazonaws.com',
-        'PORT': '5432'
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT')
 
     }
 }
@@ -150,9 +168,15 @@ STATICFILES_DIRS = [
 ]
 
 # This is what defines where the uploaded content from a model is stored. Absolute filesystem path to the directory that will hold user-uploaded files.
-MEDIA_ROOT = 'static/images'
+MEDIA_ROOT = BASE_DIR / 'static/images'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# CORS Origins allowed
+
+CORS_ALLOW_ALL_ORIGINS = True
