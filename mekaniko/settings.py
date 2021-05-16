@@ -49,11 +49,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'django.contrib.gis',
 
     'rest_framework',
     'rest_framework_gis',
+    'corsheaders',
+
     'base.apps.BaseConfig'
 ]
 
@@ -70,7 +71,11 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-    # Whitenoise should go below CORS middleware
+    # This should be always on top!
+    'corsheaders.middleware.CorsMiddleware',
+
+
+    # Whitenoise should go below CORS middleware and above SecurityMiddleware
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -170,3 +175,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# CORS Origins allowed
+
+CORS_ALLOW_ALL_ORIGINS = True
